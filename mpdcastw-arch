@@ -25,7 +25,8 @@ install_config() {
     printf "Preparing to take mpd.conf inputs:\n"
     read -p 'Stream Name: ' stream_name && sed -i "s/<++name++>/$stream_name/g" mpd.conf.tmp
     read -p 'Mount Name (<name>.mp3): ' mount_name && sed -i "s/<++mount++>/$mount_name/g" mpd.conf.tmp
-    rm -rf mpd.conf.tmp icecast.xml.tmp
+    sed -i "s/<++pass++>/$icecast_admin_password/g" mpd.conf.tmp
+#    rm -rf mpd.conf.tmp icecast.xml.tmp
 }
 
 check_requirements() {
