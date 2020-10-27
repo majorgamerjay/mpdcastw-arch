@@ -1,0 +1,46 @@
+#!/bin/bash
+
+install_mpd() {
+    command -V mpd >/dev/null 2>&1 && { printf "[i] MPD is already installed!\n" && return 1; } || {
+    printf "[i] Using pacman to install MPD\n" &&
+    pacman -S mpd && { printf "[*] mpd successfuly installed!\n" && return 0; } || return 1; }
+}
+
+install_icecast() {
+    command -V icecast >/dev/null 2>&1 && { printf "[i] icecast is already installed!\n" && return 1; } || {
+    printf "[i] Using pacman to install icecast!\n" &&
+    pacman -S icecast && { printf "[*] mpd successfuly installed!\n" && return 0; } || return 1; }
+}
+
+check_requirements() {
+    printf "Starting requirements check,\n[i] information -- [x] error -- [*] success\n"
+    printf "[i] Checking all requirements\n"
+    ping -c 1 google.com >/dev/null 2>&1 && printf "[*] Connected to the internet!\n" || { printf "[x] Not connected to the internet! Aborting!" && exit; }
+    # command -V pacman >/dev/null 2>&1 && printf "[*] Pacman found!\n" || { printf "[x] Pacman not found! Aborting!\n" && exit; }
+    # command -V systemctl >/dev/null 2>&1 && printf "[*] Systemctl found! (Systemd)\n" || { printf "[x] systemctl not found! Aborting!\n" && exit; }
+    command -V mpd >/dev/null 2>&1 && printf "[*] MPD found!\n" || { printf "[x] MPD not found!\n" && printf "[i] Installing MPD!\n" && install_mpd && printf "[i] Installed MPD!\n"; } || { printf "[x] Could not install MPD! Aborting\n" && exit; }
+    command -V icecast >/dev/null 2>&1 && printf "[*] icecast found!\n" || { printf "[x] icecast not found!\n" && printf "[i] Installing icecast!\n" && install_icecast && printf "[i] Installed icecast!\n"; } || { printf "[x] Could not install icecast! Aborting\n" && exit; }
+}
+
+case "$1" in
+    check)              check_requirements ;;
+    install_mpd)        install_mpd        ;;
+    install_icecast)    install_icecast    ;;
+    install_config)     install_config     ;;
+    install)            install_everything ;;
+    *) cat << EOF
+$1 is not a valid argument
+
+mpdcastw-arch: mpd-icecast http streaming wizard for arch, auto-install
+mpd/icecast or both and autoconfigure it for streaming music through HTTP.
+systemd and systemctl is required for this as this will configure mpd/icecast
+to run as a whole system service, not per-user.
+
+Arguments:
+    check               automatically check and install the requirements
+    install_mpd         install mpd using pacman
+    install_icecast     install icecast using pacman
+    install_config      move configs in this directory to required locations
+    install             automatically installs everything for you
+EOF
+esac
