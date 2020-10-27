@@ -12,6 +12,22 @@ install_icecast() {
     pacman -S icecast && { printf "[*] mpd successfuly installed!\n" && return 0; } || return 1; }
 }
 
+install_config() {
+    cp mpd.conf mpd.conf.tmp >/dev/null 2>&1 || { printf "Could not copy mpd.conf to mpd.conf.tmp! Aborting\n" && exit; }
+    cp icecast.xml icecast.xml.tmp >/dev/null 2>&1 || { printf "Could not copy mpd.conf to mpd.conf.tmp! Aborting\n" && exit; }
+    printf "Preparing to take icecast.xml inputs:\n"
+    read -p 'Location: ' icecast_location && sed -i "s/<++loc++>/$icecast_location/g" icecast.xml.tmp || { printf "Could not read or change location\n" ; rm -rf icecast.xml.tmp mpd.conf && exit; }
+    read -p 'Admin username: ' icecast_admin_username && sed -i "s/<++usr++>/$icecast_admin_username/g" icecast.xml.tmp || { printf "Could not read or change username\n" ; rm -rf icecast.xml.tmp mpd.conf && exit; }
+    read -sp 'Admin password: ' icecast_admin_password && sed -i "s/<++pass++>/$icecast_admin_password/g" icecast.xml.tmp || { printf "Could not read or change password\n" ; rm -rf icecast.xml.tmp mpd.conf && exit; }
+    printf "\n"
+    read -p 'Hostname: ' icecast_admin_hostname && sed -i "s/<++hst++>/$icecast_admin_hostname/g" icecast.xml.tmp || { printf "Could not read or change password\n" ; rm -rf icecast.xml.tmp mpd.conf && exit; }
+    printf "\n"
+    printf "Preparing to take mpd.conf inputs:\n"
+    read -p 'Stream Name: ' stream_name && sed -i "s/<++name++>/$stream_name/g" mpd.conf.tmp
+    read -p 'Mount Name (<name>.mp3): ' mount_name && sed -i "s/<++mount++>/$mount_name/g" mpd.conf.tmp
+    rm -rf mpd.conf.tmp icecast.xml.tmp
+}
+
 check_requirements() {
     printf "Starting requirements check,\n[i] information -- [x] error -- [*] success\n"
     printf "[i] Checking all requirements\n"
