@@ -1,18 +1,28 @@
 #!/bin/bash
 
+check_root() {
+    if [ "$EUID" -ne 0 ]
+      then echo "Please run as root"
+      exit
+    fi
+}
+
 install_mpd() {
+    check_root
     command -V mpd >/dev/null 2>&1 && { printf "[i] MPD is already installed!\n" && return 1; } || {
     printf "[i] Using pacman to install MPD\n" &&
-    pacman -S mpd && { printf "[*] mpd successfuly installed!\n" && return 0; } || return 1; }
+    pacman -S mpd && { printf "[*] mpd successfuly installed!\n" && systemctl start mpd.socket && systemctl start mpd.service && return 0; } || return 1; }
 }
 
 install_icecast() {
+    check_root
     command -V icecast >/dev/null 2>&1 && { printf "[i] icecast is already installed!\n" && return 1; } || {
     printf "[i] Using pacman to install icecast!\n" &&
-    pacman -S icecast && { printf "[*] mpd successfuly installed!\n" && return 0; } || return 1; }
+    pacman -S icecast && { printf "[*] mpd successfuly installed!\n" && systemctl enable icecast.service && systemctl start icecast.service && return 0; } || return 1; }
 }
 
 install_config() {
+    check_root
     cp mpd.conf mpd.conf.tmp >/dev/null 2>&1 || { printf "Could not copy mpd.conf to mpd.conf.tmp! Aborting\n" && exit; }
     cp icecast.xml icecast.xml.tmp >/dev/null 2>&1 || { printf "Could not copy mpd.conf to mpd.conf.tmp! Aborting\n" && exit; }
     printf "Preparing to take icecast.xml inputs:\n"
@@ -26,15 +36,30 @@ install_config() {
     read -p 'Stream Name: ' stream_name && sed -i "s/<++name++>/$stream_name/g" mpd.conf.tmp
     read -p 'Mount Name (<name>.mp3): ' mount_name && sed -i "s/<++mount++>/$mount_name/g" mpd.conf.tmp
     sed -i "s/<++pass++>/$icecast_admin_password/g" mpd.conf.tmp
-#    rm -rf mpd.conf.tmp icecast.xml.tmp
+    cp mpd.conf.tmp /etc/mpd.conf || { printf "mpd.conf could not be copied! aborting!\n" && rm -rf mpd.conf.tmp icecast.xml.tmp && exit; }
+    cp icecast.xml.tmp /etc/icecast.xml || { printf "mpd.conf could not be copied! aborting!\n" && rm -rf mpd.conf.tmp icecast.xml.tmp && exit; }
+    rm -rf mpd.conf.tmp icecast.xml.tmp
+}
+
+restart_services() {
+    check_root
+    systemctl stop icecast.service &&
+    systemctl stop mpd.service &&
+    systemctl stop mpd.socket &&
+    systemctl start mpd.socket &&
+    systemctl start mpd.service &&
+    systemctl start icecast.service &&
+    return 0 ||
+    return 1
 }
 
 check_requirements() {
+    check_root
     printf "Starting requirements check,\n[i] information -- [x] error -- [*] success\n"
     printf "[i] Checking all requirements\n"
     ping -c 1 google.com >/dev/null 2>&1 && printf "[*] Connected to the internet!\n" || { printf "[x] Not connected to the internet! Aborting!" && exit; }
-    # command -V pacman >/dev/null 2>&1 && printf "[*] Pacman found!\n" || { printf "[x] Pacman not found! Aborting!\n" && exit; }
-    # command -V systemctl >/dev/null 2>&1 && printf "[*] Systemctl found! (Systemd)\n" || { printf "[x] systemctl not found! Aborting!\n" && exit; }
+    command -V pacman >/dev/null 2>&1 && printf "[*] Pacman found!\n" || { printf "[x] Pacman not found! Aborting!\n" && exit; }
+    command -V systemctl >/dev/null 2>&1 && printf "[*] Systemctl found! (Systemd)\n" || { printf "[x] systemctl not found! Aborting!\n" && exit; }
     command -V mpd >/dev/null 2>&1 && printf "[*] MPD found!\n" || { printf "[x] MPD not found!\n" && printf "[i] Installing MPD!\n" && install_mpd && printf "[i] Installed MPD!\n"; } || { printf "[x] Could not install MPD! Aborting\n" && exit; }
     command -V icecast >/dev/null 2>&1 && printf "[*] icecast found!\n" || { printf "[x] icecast not found!\n" && printf "[i] Installing icecast!\n" && install_icecast && printf "[i] Installed icecast!\n"; } || { printf "[x] Could not install icecast! Aborting\n" && exit; }
 }
@@ -44,7 +69,7 @@ case "$1" in
     install_mpd)        install_mpd        ;;
     install_icecast)    install_icecast    ;;
     install_config)     install_config     ;;
-    install)            install_everything ;;
+    install)            check_root && check_requirements && install_config && restart_services && printf "Wizard successfully installed necessary stuff!\n" || { printf "Could not be installed!\n" && exit; } ;;
     *) cat << EOF
 $1 is not a valid argument
 
