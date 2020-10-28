@@ -13,9 +13,7 @@ After running through the whole configurator, you will have your own music serve
 ### Note:
 This will be a system-wide installation for the sake of simplicity and ease-of-use upon startup! If you have local configs, please delete it and the songs that you want to stream should be put on the specified directory, do not try to change it!
 
-Please don't do any issues or pull-request if its related to code simplicity or making it compatible for most POSIX shells and stuff. Unless it is about adding more features or fixing any bugs, 
-don't make a pull request at all!
-Other than that, you are welcome to make issues if you have problems during installations using the script!
+Please don't do any issues or pull-request if its related to code simplicity or code improvement or making it compatible for most POSIX shells and stuff. Unless it is about adding more features or fixing any bugs, don't make a pull request at all! Other than that, you are welcome to make issues if you have problems during installations using the script!
 ### How to install!
 1. Clone the git repo:
 ```
