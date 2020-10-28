@@ -46,11 +46,13 @@ If you do not have MPD and Icecast installed or you just want to reinstall every
 It will run you through the whole installation and at the end, it will ask necessary information to build up your config, which also can be done using `./mpdcastw-arch install_config`, which will also install the config for you.
 
 Required Information that will be asked for input:
+
 Icecast:
 1. Location: Location that will be displayed on the icecast webpage of your server, be it imaginary or real.
 2. Admin username: Admin username for your server.
 3. Admin password: Admin password for your server.
 4. Hostname: Hostname that will be displayed in your server, giving default hostname is preferred to not to run into any trouble
+
 MPD:
 1. Stream name: Name of the stream (That will be displayed on the icecast page)
 2. Mount name (<name>.mp3): The name of the music file that will be streamed through. For example, if you give Floonarb, it will be Floonarb.mp3
