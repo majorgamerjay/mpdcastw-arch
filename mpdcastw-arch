@@ -43,12 +43,12 @@ install_config() {
 
 restart_services() {
     check_root
-    systemctl stop icecast.service &&
-    systemctl stop mpd.service &&
-    systemctl stop mpd.socket &&
-    systemctl start mpd.socket &&
-    systemctl start mpd.service &&
-    systemctl start icecast.service &&
+    systemctl stop icecast.service >/dev/null 2>&1 &&
+    systemctl stop mpd.service >/dev/null 2>&1 &&
+    systemctl stop mpd.socket >/dev/null 2>&1 &&
+    systemctl start mpd.socket >/dev/null 2>&1 &&
+    systemctl start mpd.service  >/dev/null 2>&1 &&
+    systemctl start icecast.service  >/dev/null 2>&1 &&
     return 0 ||
     return 1
 }
@@ -64,7 +64,12 @@ check_requirements() {
     command -V icecast >/dev/null 2>&1 && printf "[*] icecast found!\n" || { printf "[x] icecast not found!\n" && printf "[i] Installing icecast!\n" && install_icecast && printf "[i] Installed icecast!\n"; } || { printf "[x] Could not install icecast! Aborting\n" && exit; }
 }
 
+post_installation() {
+    printf "Now you can go to localhost:8000 or your local ip:8000 to go\nto icecast server page or go to localhost:8000/<mount>.mp3 to directly go to the music!\n Now download a MPD client like ncmpcpp or mpc to control the music. All music should be stored in /var/lib/mpd/playlists"
+}
+
 case "$1" in
+    post_installation_check) post_installation ;;
     check)              check_requirements ;;
     install_mpd)        install_mpd        ;;
     install_icecast)    install_icecast    ;;
