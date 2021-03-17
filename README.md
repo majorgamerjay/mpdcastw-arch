@@ -19,17 +19,12 @@ Please don't do any issues or pull-request if its related to code simplicity or 
 ```
 git clone https://github.com/MajorGamerJay/mpdcastw-arch.git
 ```
-2. Install it/Run it!
+2. Run it!
 
-To install the script to run it anywhere anytime to configure MPD + Icecast:
-```
-make install
-```
-This will install a bash script named "mpdcast-wizard-arch" in your system.
-If you don't want to install it, go to the directory and then just run,
 ```
 ./mpdcastw-arch
 ```
+
 and it'll run the script for you!
 
 ### How to use!
