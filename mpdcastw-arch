@@ -57,7 +57,8 @@ check_requirements() {
     check_root
     printf "Starting requirements check,\n[i] information -- [x] error -- [*] success\n"
     printf "[i] Checking all requirements\n"
-    ping -c 1 google.com >/dev/null 2>&1 && printf "[*] Connected to the internet!\n" || { printf "[x] Not connected to the internet! Aborting!" && exit; }
+    command -V curl >/dev/null 2>&1 && printf "[*] curl found!\n" || { printf "[x] curl not found! Aborting!\n" && exit; }
+    curl google.com >/dev/null 2>&1 && printf "[*] Connected to the internet!\n" || { printf "[x] Not connected to the internet! Aborting!" && exit; }
     command -V pacman >/dev/null 2>&1 && printf "[*] Pacman found!\n" || { printf "[x] Pacman not found! Aborting!\n" && exit; }
     command -V systemctl >/dev/null 2>&1 && printf "[*] Systemctl found! (Systemd)\n" || { printf "[x] systemctl not found! Aborting!\n" && exit; }
     command -V mpd >/dev/null 2>&1 && printf "[*] MPD found!\n" || { printf "[x] MPD not found!\n" && printf "[i] Installing MPD!\n" && install_mpd && printf "[i] Installed MPD!\n"; } || { printf "[x] Could not install MPD! Aborting\n" && exit; }
